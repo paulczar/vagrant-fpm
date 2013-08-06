@@ -17,7 +17,7 @@ if BOX_NAME.match( 'precise|lucid|quantal|ubuntu' ) # Ubuntu
   chef_run_list = %w[ apt git ruby build-essential ]
   OS = "ubuntu"
 elsif BOX_NAME.match( 'centos|rhel' ) # RHEL/CentOS
-  chef_run_list = %w[ yum::epel ]
+  chef_run_list = %w[ yum::epel git build-essential ]
   OS = "rhel"
 else
   raise "For Automatic OS detection your BOX_NAME must contain one of the following strings: precise,lucid,quantal,ubuntu,centos,rhel"
@@ -28,21 +28,20 @@ Vagrant.configure("2") do |config|
   config.berkshelf.enabled = true
   # The path to the Berksfile to use with Vagrant Berkshelf
   config.berkshelf.berksfile_path = "./Berksfile"
+  # Ensure latest Chef is installed for provisioning
+  config.omnibus.chef_version = :latest
+
   # per OS family cleanup
   if OS == "rhel" 
     config.vm.provision :shell, :inline => <<-SCRIPT
-      yum -y install wget curl
-      service iptables stop
+      yum -y --quiet install ruby-devel rpm-build
+      [[ -e /etc/init.d/iptables ]] && service iptables stop
     SCRIPT
   end    
   if OS == "ubuntu"
     config.vm.provision :shell, :inline => <<-SCRIPT
-      apt-get update
-      apt-get -y install wget curl
     SCRIPT
   end
-  # Ensure latest Chef is installed for provisioning
-  config.omnibus.chef_version = :latest
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", BOX_MEM]
