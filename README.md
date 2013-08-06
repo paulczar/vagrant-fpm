@@ -4,15 +4,16 @@ Vagrant skeleton for building packages with FPM.
 
 ## Installing
 
+_CentOS 5.9 provisioning broken right now ... no good upstream centos boxes_
 
 ```
 git clone https://github.com/paulczar/vagrant-fpm.git
 cd vagrant-fpm
+source ./set_os [centos59,centos64,precise]
 vagrant up
 vagrant ssh
-sudo /vagrant/scripts/install-fpm.sh
 ```
-^ didn't script fpm install as I have had vbox break networking too often on first boot
+FPM and all required packages should be installed by provisioning.
 
 ## Creating Packages
 
