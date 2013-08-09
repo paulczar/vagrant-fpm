@@ -1,26 +1,31 @@
 #!/bin/bash
 
 # you can find an extensive set of vagrant boxes here :
-#			http://vagrant-jls.objects.dreamhost.com/list.html
+#			https://github.com/opscode/bento
 
 case $1 in
-	centos59)
+	centos5)
 		export BOX_NAME=$1
-		export BOX_URI=http://vagrant-jls.objects.dreamhost.com/CentOS-5.9-x86_64.box
+		export BOX_URI=https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_centos-5.9_provisionerless.box
 		export BOX_OS=rhel5
 	;;
-	centos64)
+	centos6)
 		export BOX_NAME=$1
-		export BOX_URI=http://vagrant-jls.objects.dreamhost.com/CentOS-6.4-x86_64-minimal.box
-		export BOX_OS=rhel6
+		export BOX_URI=https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_centos-6.4_provisionerless.box
+		export BOX_OS=rhel
 	;;
 	precise)
-		export BOX_NAME=precise64
-		export BOX_URI=https://opscode-vm.s3.amazonaws.com/vagrant/boxes/opscode-ubuntu-12.04.box
+		export BOX_NAME=$1
+		export BOX_URI=https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04_provisionerless.box
+		export BOX_OS=ubuntu
+	;;	
+	raring)
+		export BOX_NAME=$1
+		export BOX_URI=https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_ubuntu-13.04_provisionerless.box
 		export BOX_OS=ubuntu
 	;;	
 	*)
 		echo "No box found for $1"
-		echo "Usage: source ./set_os.sh [centos59|centos64]"
+		echo "Usage: source ./set_os.sh [centos5|centos6|precise|raring]"
 	;;
 esac

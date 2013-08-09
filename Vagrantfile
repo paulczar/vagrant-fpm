@@ -15,27 +15,21 @@ BOX_CPU = ENV['BOX_CPU'] || '2' # higher number decrease compile times
 
 # OS Specific Chef Run List
 if BOX_OS.match( 'precise|lucid|quantal|ubuntu' )
-  chef_run_list = %w[ apt git ruby build-essential ]
-elsif BOX_OS == 'rhel6'
-  chef_run_list = %w[ yum::epel git build-essential ]
-elsif BOX_OS == 'rhel5'
-  # do nothing
+  chef_run_list = %w[ apt git build-essential ruby ]
+elsif BOX_OS.match('rhel')
+  chef_run_list = %w[ git build-essential ]
 else
-  raise "For Automatic OS detection your BOX_OS must contain one of the following strings: precise,lucid,quantal,ubuntu,rhel5,rhel6"
+  raise "For Automatic OS detection your BOX_OS must contain one of the following strings: precise,lucid,quantal,ubuntu,rhel,rhel5,rhel6"
 end
 
 Vagrant.configure("2") do |config|
-  if BOX_OS == "rhel5"
-    # Enable the berkshelf-vagrant plugin
-    config.berkshelf.enabled = false
-  else
-    # Enable the berkshelf-vagrant plugin
-    config.berkshelf.enabled = true
-    # The path to the Berksfile to use with Vagrant Berkshelf
-    config.berkshelf.berksfile_path = "./Berksfile-vagrant"
-    # Ensure latest Chef is installed for provisioning
-    config.omnibus.chef_version = :latest
-  end
+  # Enable the berkshelf-vagrant plugin
+  config.berkshelf.enabled = true
+  # The path to the Berksfile to use with Vagrant Berkshelf
+  config.berkshelf.berksfile_path = "./Berksfile-vagrant"
+  # Ensure latest Chef is installed for provisioning
+  config.omnibus.chef_version = :latest
+
   config.vm.define :fpm do |config|
     config.vm.hostname = "fpm"
     config.vm.box = BOX_NAME
@@ -43,36 +37,31 @@ Vagrant.configure("2") do |config|
     config.ssh.max_tries = 40
     config.ssh.timeout = 120
     config.ssh.forward_agent = true
-    unless BOX_OS == "rhel5"
-      # bootstrap all nodes with general apps.
-      config.vm.provision :chef_solo do |chef|
-        chef.json = {
+    # bootstrap all nodes with general apps.
+    config.vm.provision :chef_solo do |chef|
+      chef.json = {
             "languages" => {
               "ruby" => {
                 "default_version" => "1.9.1"
               }
-          } 
-        }
-        chef.run_list = chef_run_list
-      end
-      if BOX_OS == 'rhel6'
+          }
+       }
+      chef.run_list = chef_run_list
+    end
+    if BOX_OS.match( 'rhel' )
+      config.vm.provision :shell, :inline => <<-SCRIPT
+        yum -y install rpm-build
+        [[ -e /etc/init.d/iptables ]] && service iptables stop || sleep 0
+        # monkey patch fpm into chef 11's omnibus ruby install.
         config.vm.provision :shell, :inline => <<-SCRIPT
-          yum -y --quiet install ruby-devel rpm-build
-          [[ -e /etc/init.d/iptables ]] && service iptables stop
-        SCRIPT
-      end    
+        echo 'PATH=$PATH:/opt/chef/embedded/bin' > /etc/bashrc
+        /opt/chef/embedded/bin/gem install fpm --no-ri --no-rdo
+      SCRIPT
     else
       config.vm.provision :shell, :inline => <<-SCRIPT
-        rpm -e $(rpm -qa --qf="%{n}-%{v}-%{r}.%{arch}\n" | grep "ruby*\|puppet*\|facter*")
-        wget -O /etc/yum.repos.d/aegisco.repo http://rpm.aegisco.com/aegisco/el5/aegisco.repo
-        yum -y -q install git build-essential
-        yum -y -q install ruby-devel.x86_64 ruby-shadow ruby-augeas puppet ruby ruby-irb ruby-rdoc facter rubygems ruby-libs.x86_64 libselinux-ruby
+        gem install fpm --no-ri --no-rdo
       SCRIPT
     end
-
-    config.vm.provision :shell, :inline => <<-SCRIPT
-      gem install fpm --no-ri --no-rdo
-    SCRIPT
   end
 
   # size the VMs

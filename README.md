@@ -4,12 +4,15 @@ Vagrant skeleton for building packages with FPM.
 
 ## Installing
 
-_CentOS 5.9 provisioning broken right now ... no good upstream centos boxes_
+`set_os` is a script to tell vagrant which OS you want to boot.  It includes a default set of boxes that have been
+tested as working.   Update it include your own boxes if you don't want to use the defaults.
+
+for some reason the yum::epel 404's occasionally on the CentOS5 boxes.   just rerun `vagrant provision` if that happens to you.
 
 ```
 git clone https://github.com/paulczar/vagrant-fpm.git
 cd vagrant-fpm
-source ./set_os [centos59,centos64,precise]
+source ./set_os [centos5,centos6,precise,raring]
 vagrant up
 vagrant ssh
 ```
