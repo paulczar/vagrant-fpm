@@ -5,7 +5,7 @@ if Vagrant::VERSION < "1.2.1"
 end
 
 # Allows us to pick a different box by setting Environment Variables
-BOX_NAME = ENV['BOX_NAME'] || "precise"
+BOX_NAME = ENV['BOX_NAME'] || "precisec"
 BOX_URI  = ENV['BOX_URI'] || "https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04_provisionerless.box"
 BOX_OS   = ENV['BOX_OS'] || 'ubuntu'
 
@@ -25,8 +25,12 @@ end
 Vagrant.configure("2") do |config|
   # Enable the berkshelf-vagrant plugin
   config.berkshelf.enabled = true
+  
   # The path to the Berksfile to use with Vagrant Berkshelf
   config.berkshelf.berksfile_path = "./Berksfile-vagrant"
+  # Enable vagrant cachier
+  config.cache.auto_detect = true
+
   # Ensure latest Chef is installed for provisioning
   config.omnibus.chef_version = :latest
 
