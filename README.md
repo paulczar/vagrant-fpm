@@ -7,7 +7,9 @@ Vagrant skeleton for building packages with FPM.
 `set_os` is a script to tell vagrant which OS you want to boot.  It includes a default set of boxes that have been
 tested as working.   Update it include your own boxes if you don't want to use the defaults.
 
-for some reason the yum::epel 404's occasionally on the CentOS5 boxes.   just rerun `vagrant provision` if that happens to you.
+* Ubuntu variants will install Ruby 1.9.3, Build-Essentials and FPM
+* Rhel/CentOS variants will monkeypatch FPM into the Chef's Ruby in /opt/chef/embedded.  This helps workaround the fact that ruby is painful to deal with on RHEL boxes.
+
 
 ```
 git clone https://github.com/paulczar/vagrant-fpm.git
@@ -20,9 +22,8 @@ FPM and all required packages should be installed by provisioning.
 
 ## Creating Packages
 
-run `/vagrant/scripts/elasticsearch/create_rpm.sh` for example script to create elasticsearch rpm.
-run `/vagrant/scripts/redis/make_rpm.sh` for example script to create redis rpm
+run `/vagrant/scripts/redis/make_package.sh` for example script to create redis rpm
 
-rpms should be built in /vagrant/rpms/ for ease of access.
+rpms should be built in /vagrant/pkg/ for ease of access.
 
 

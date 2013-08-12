@@ -1,4 +1,4 @@
 # ignore stuff
 
-rpms/*.rpm
+pkg/*
 .vagrant/*

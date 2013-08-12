@@ -5,8 +5,8 @@ if Vagrant::VERSION < "1.2.1"
 end
 
 # Allows us to pick a different box by setting Environment Variables
-BOX_NAME = ENV['BOX_NAME'] || "precise64"
-BOX_URI  = ENV['BOX_URI'] || "https://opscode-vm.s3.amazonaws.com/vagrant/boxes/opscode-ubuntu-12.04.box"
+BOX_NAME = ENV['BOX_NAME'] || "precise"
+BOX_URI  = ENV['BOX_URI'] || "https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04_provisionerless.box"
 BOX_OS   = ENV['BOX_OS'] || 'ubuntu'
 
 # Set your box size, Override with Environment Variables.
@@ -50,15 +50,15 @@ Vagrant.configure("2") do |config|
     end
     if BOX_OS.match( 'rhel' )
       config.vm.provision :shell, :inline => <<-SCRIPT
-        yum -y install rpm-build
+        yum -y install rpm-build curl wget
         [[ -e /etc/init.d/iptables ]] && service iptables stop || sleep 0
         # monkey patch fpm into chef 11's omnibus ruby install.
-        config.vm.provision :shell, :inline => <<-SCRIPT
-        echo 'PATH=$PATH:/opt/chef/embedded/bin' > /etc/bashrc
+        echo 'PATH=$PATH:/opt/chef/embedded/bin' >> /etc/bashrc
         /opt/chef/embedded/bin/gem install fpm --no-ri --no-rdo
       SCRIPT
     else
       config.vm.provision :shell, :inline => <<-SCRIPT
+        apt-get -y install curl wget
         gem install fpm --no-ri --no-rdo
       SCRIPT
     end
